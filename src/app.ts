@@ -22,6 +22,7 @@ export function createApp() {
   app.use(pinoHttp());
 
   app.use("/health", healthRouter);
+  app.use("/api/auth", usersRouter);
   app.use("/api/users", usersRouter);
 
   app.use(errorHandler);
