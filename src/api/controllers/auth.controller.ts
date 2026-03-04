@@ -1,0 +1,41 @@
+import type { Request, Response } from "express";
+import bcrypt from "bcrypt";
+import { User } from "../models/user.model";
+
+export async function register(req: Request, res: Response) {
+  const { role, name, email, password, phone, address } = req.body;
+
+  if (!role || !name || !email || !password) {
+    return res.status(400).json({ message: "Missing required fields" });
+  }
+
+  const normalizedEmail = String(email).trim().toLowerCase();
+
+  const existing = await User.findOne({ email: normalizedEmail });
+  if (existing) return res.status(409).json({ message: "Email already exists" });
+
+  const passwordHash = await bcrypt.hash(String(password), 10);
+
+  const status = role === "VENDOR" ? "PENDING" : "ACTIVE";
+
+  const user = await User.create({
+    role,
+    status,
+    name,
+    email: normalizedEmail,
+    passwordHash,
+    phone: phone || "",
+    address: address || "",
+  });
+
+  return res.status(201).json({
+    message: "Registered",
+    user: {
+      id: user._id,
+      role: user.role,
+      status: user.status,
+      name: user.name,
+      email: user.email,
+    },
+  });
+}
