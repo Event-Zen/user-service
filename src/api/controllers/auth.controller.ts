@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import { User } from "../models/user.model";
+import jwt from "jsonwebtoken";
 
 export async function register(req: Request, res: Response) {
   const { role, name, email, password, phone, address } = req.body;
@@ -64,4 +65,12 @@ export async function login(req: Request, res: Response) {
       email: user.email,
     },
   });
+}
+
+function signAccessToken(user: any) {
+  return jwt.sign(
+    { sub: user._id.toString(), role: user.role, email: user.email, name: user.name },
+    process.env.JWT_ACCESS_SECRET as string,
+    { expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN || "15m" }
+  );
 }
