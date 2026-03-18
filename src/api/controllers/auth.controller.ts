@@ -76,7 +76,7 @@ function signAccessToken(user: any) {
       name: user.name,
     },
     process.env.JWT_ACCESS_SECRET as string,
-    { expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN || "15m" },
+    { expiresIn: (process.env.ACCESS_TOKEN_EXPIRES_IN || "15m") as any },
   );
 }
 
