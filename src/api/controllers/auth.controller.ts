@@ -80,43 +80,22 @@ function signAccessToken(user: any) {
   );
 }
 
-export async function me(req: Request, res: Response) {
-  const auth = req.headers.authorization;
-  if (!auth?.startsWith("Bearer "))
-    return res.status(401).json({ message: "Missing token" });
-
-  const token = auth.slice("Bearer ".length);
-
+export async function me(req: any, res: Response) {
   try {
-    const payload = jwt.verify(
-      token,
-      process.env.JWT_ACCESS_SECRET as string,
-    ) as any;
-    const user = await User.findById(payload.sub).select("-passwordHash");
+    const user = await User.findById(req.user.id).select("-passwordHash");
     if (!user) return res.status(404).json({ message: "User not found" });
 
     return res.json({ user });
-  } catch {
-    return res.status(401).json({ message: "Invalid token" });
+  } catch (error) {
+    return res.status(500).json({ message: "Server error" });
   }
 }
 
-export async function updateMe(req: Request, res: Response) {
-  const auth = req.headers.authorization;
-  if (!auth?.startsWith("Bearer "))
-    return res.status(401).json({ message: "Missing token" });
-
-  const token = auth.slice("Bearer ".length);
-
+export async function updateMe(req: any, res: Response) {
   try {
-    const payload = jwt.verify(
-      token,
-      process.env.JWT_ACCESS_SECRET as string,
-    ) as any;
-
     const { name, phone, address, profileImageUrl } = req.body;
     const user = await User.findByIdAndUpdate(
-      payload.sub,
+      req.user.id,
       { name, phone, address, profileImageUrl },
       { new: true },
     ).select("-passwordHash");
@@ -124,7 +103,7 @@ export async function updateMe(req: Request, res: Response) {
     if (!user) return res.status(404).json({ message: "User not found" });
 
     return res.json({ user });
-  } catch {
-    return res.status(401).json({ message: "Invalid token" });
+  } catch (error) {
+    return res.status(500).json({ message: "Server error" });
   }
 }
