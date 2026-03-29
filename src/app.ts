@@ -12,13 +12,13 @@ export function createApp() {
   const app = express();
 
   app.use(helmet());
-   app.use(
+  app.use(
     cors({
       origin: process.env.CLIENT_ORIGIN,
       credentials: true,
     })
   );
-  
+
   app.use(express.json({ limit: "1mb" }));
   app.use(pinoHttp());
 
